@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Generalisation Gap in Comorbid Sleep Disorder Staging">
+    <title>AI Generalisation Gap in Comorbid Sleep Disorder Staging</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.65;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
+            color: white;
+            padding: 60px 30px 50px;
+            margin-bottom: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            font-size: 1.85em;
+            margin-bottom: 28px;
+            font-weight: 400;
+            line-height: 1.35;
+            letter-spacing: -0.015em;
+        }
+
+        .authors {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.05em;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .affiliations {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.88em;
+            line-height: 1.55;
+            opacity: 0.92;
+            font-weight: 300;
+        }
+
+        .links {
+            margin-top: 32px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            padding: 9px 22px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #4a148c;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: 'Segoe UI', sans-serif;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .link-btn:hover {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .section {
+            background: white;
+            margin: 35px 0;
+            padding: 35px 40px;
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            font-family: 'Segoe UI', sans-serif;
+            color: #4a148c;
+            margin-bottom: 22px;
+            font-size: 1.5em;
+            font-weight: 400;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .abstract {
+            text-align: justify;
+            font-size: 1.02em;
+            line-height: 1.75;
+            color: #2a2a2a;
+            hyphens: auto;
+        }
+
+        .highlights {
+            background: #f5f3f9;
+            border: 1px solid #d5cce5;
+            border-radius: 4px;
+            padding: 32px;
+            margin: 30px 0;
+        }
+
+        .highlights h3 {
+            font-family: 'Segoe UI', sans-serif;
+            color: #4a148c;
+            margin-bottom: 20px;
+            font-size: 1.25em;
+            font-weight: 400;
+        }
+
+        .highlights ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .highlights li {
+            padding: 10px 0 10px 30px;
+            position: relative;
+            line-height: 1.7;
+            font-size: 0.98em;
+        }
+
+        .highlights li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #6a1b9a;
+            font-weight: bold;
+        }
+
+        .dataset-info {
+            background: #fff8e1;
+            border-left: 4px solid #ffa000;
+            padding: 20px 25px;
+            margin: 25px 0;
+            font-size: 0.96em;
+            line-height: 1.7;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .team-member {
+            padding: 20px;
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 3px;
+        }
+
+        .team-member h4 {
+            font-family: 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+
+        .team-member p {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        footer {
+            margin-top: 70px;
+            padding: 35px 20px;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            color: #666;
+            font-size: 0.92em;
+        }
+
+        footer p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .footer-copyright {
+            margin-top: 18px;
+            font-size: 0.88em;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .section {
+                padding: 25px 20px;
+            }
+
+            header {
+                padding: 40px 20px 35px;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>AI GENERALISATION GAP IN COMORBID SLEEP DISORDER STAGING</h1>
+            
+            <div class="authors">
+                Saswata Bose⋄, Suvadeep Maiti†,⋄, Shivam Kumar Sharma⋄, Mythirayee S‡, Tapabrata Chakraborti†, Srijitesh P R‡, Raju S. Bapi⋄
+            </div>
+            
+            <div class="affiliations">
+                ⋄International Institute of Information Technology (IIIT-H), Hyderabad, India<br>
+                †Alan Turing Institute, London and University College, London, United Kingdom<br>
+                ‡National Institute of Mental Health and Neuroscience (NIMHANS), Bangalore, India
+            </div>
+            
+            <div class="links">
+                <a href="#" class="link-btn">Paper (Coming Soon)</a>
+                <a href="#" class="link-btn">Github (Coming Soon)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="section">
+            <h2>Abstract</h2>
+            <p class="abstract">
+                Accurate sleep staging is essential for diagnosing disorders like obstructive sleep apnea (OSA) and hypopnea, both highly prevalent among stroke patients. Conventional polysomnography (PSG), though clinically reliable, is labor-intensive, costly, and reliant on manual scoring. Recent advances in deep learning enable automated staging from raw EEG of healthy participants. However, our investigations reveal that most models fail to generalize to clinical populations with disrupted sleep architecture. This paper is meant to demonstrate this phenomenon in a structured manner highlighting this issue through Grad-CAM based interpretations. To do this, we introduce iSLEEPS, a new clinically annotated ischemic stroke dataset (to be made public in near future), and evaluate a deep learning framework combining SE-ResNet feature extraction with bidirectional LSTM layers for contextual sleep stage classification using single-channel EEG. As expected, the model indicates poor cross-domain generalization between healthy and diseased patients. Comparison of the attention visualisations with expert clinical feedback reveals that this might be due to the model attending to physiologically uninformative EEG regions in patient data. Further supportive statistical and computational analyses confirm significant differences in sleep architecture between healthy and ischemic stroke subjects. These findings highlight the need for subject-aware or disease-specific sleep staging models that focus on medically relevant features, alongside clinical validation of automated tagging before integration into treatment workflows.
+            </p>
+        </div>
+        </div>
+
+        <div class="section">
+            <h2>Ethical Compliance</h2>
+            <p style="line-height: 1.75; margin-bottom: 20px;">
+                The study was carried out at the NIMHANS, Bengaluru, India, a leading tertiary care referral teaching hospital. Approval was obtained from the NIMHANS Institutional Ethics Committee [No. NIMHANS/34th IEC (BS&NS DIV.)/2022 dated 05.02.2022]. Ethical considerations were strictly followed throughout the study.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Acknowledgments</h2>
+            <p style="line-height: 1.75;">
+                We acknowledge IHub-Data, IIIT Hyderabad (H1-002), for financial assistance. Tapabrata Chakraborti is supported by the Turing-Roche Strategic Partnership and UCL NIHR Biomedical Research Centre.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>The iSLEEPS dataset and code will be released upon publication.</p>
+            <p class="footer-copyright">© 2025 For inquiries, please contact the authors through their respective institutions.</p>
+        </div>
+    </footer>
+</body>
+</html>
