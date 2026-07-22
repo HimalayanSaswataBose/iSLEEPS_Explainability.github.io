@@ -1,283 +1,1126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Generalisation Gap in Comorbid Sleep Disorder Staging">
-    <title>AI Generalisation Gap in Comorbid Sleep Disorder Staging</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Generalisation Gap in Comorbid Sleep Disorder Staging</title>
+<meta name="description" content="Deep sleep-staging models trained on healthy EEG break down on stroke patients — and Grad-CAM shows the failure in where they look. Introducing iSLEEPS, a clinically annotated ischemic-stroke sleep dataset. IEEE ISBI 2026 (oral)." />
+<link rel="canonical" href="https://himalayansaswatabose.github.io/iSLEEPS_Explainability.github.io/" />
+<meta name="theme-color" content="#0C1222" />
 
-        body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            line-height: 1.65;
-            color: #1a1a1a;
-            background: #fafafa;
-        }
+<!-- Open Graph / social -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="AI Generalisation Gap in Comorbid Sleep Disorder Staging" />
+<meta property="og:description" content="Sleep-staging models trained on healthy EEG break down on stroke patients — and Grad-CAM shows the failure in where they look. IEEE ISBI 2026 (oral)." />
+<meta property="og:url" content="https://himalayansaswatabose.github.io/iSLEEPS_Explainability.github.io/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="AI Generalisation Gap in Comorbid Sleep Disorder Staging" />
+<meta name="twitter:description" content="Sleep-staging models trained on healthy EEG break down on stroke patients. Introducing iSLEEPS. IEEE ISBI 2026 (oral)." />
 
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+<!-- EEG-blip favicon -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230C1222'/%3E%3Cpath d='M2 16h6l2-7 3 14 3-10 2 5 3-2h6' fill='none' stroke='%233FE0CE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 
-        header {
-            background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
-            color: white;
-            padding: 60px 30px 50px;
-            margin-bottom: 50px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
 
-        h1 {
-            font-family: 'Segoe UI', -apple-system, sans-serif;
-            font-size: 1.85em;
-            margin-bottom: 28px;
-            font-weight: 400;
-            line-height: 1.35;
-            letter-spacing: -0.015em;
-        }
+<style>
+:root{
+  --ink:#0C1222;
+  --ink-2:#111A2E;
+  --ink-3:#16213A;
+  --paper:#F5F7F9;
+  --card:#FFFFFF;
+  --text:#16202E;
+  --muted:#5B6675;
+  --muted-2:#818B99;
+  --line:#E3E8ED;
+  --line-2:#EEF1F4;
 
-        .authors {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 1.05em;
-            margin-bottom: 18px;
-            line-height: 1.6;
-            font-weight: 300;
-        }
+  --teal:#0E9B8E;        /* accessible teal on light */
+  --teal-deep:#0A6F66;
+  --teal-lum:#3FE0CE;    /* luminous teal on ink */
+  --teal-wash:#E7F4F2;
 
-        .affiliations {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 0.88em;
-            line-height: 1.55;
-            opacity: 0.92;
-            font-weight: 300;
-        }
+  --amber:#B9720A;       /* accessible amber on light */
+  --amber-deep:#8C5606;
+  --amber-lum:#FBB74A;   /* luminous amber on ink */
+  --amber-wash:#FBF0DE;
 
-        .links {
-            margin-top: 32px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+  --maxw:1120px;
+  --pad:clamp(20px,5vw,64px);
 
-        .link-btn {
-            padding: 9px 22px;
-            background: rgba(255, 255, 255, 0.95);
-            color: #4a148c;
-            text-decoration: none;
-            border-radius: 3px;
-            font-size: 0.9em;
-            font-family: 'Segoe UI', sans-serif;
-            display: inline-block;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
 
-        .link-btn:hover {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);
+  background:var(--paper);
+  color:var(--text);
+  line-height:1.65;
+  font-weight:450;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+::selection{background:var(--teal-lum);color:#04201d}
+a{color:inherit}
 
-        .section {
-            background: white;
-            margin: 35px 0;
-            padding: 35px 40px;
-            border: 1px solid #e5e5e5;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
+.wrap{max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
 
-        h2 {
-            font-family: 'Segoe UI', sans-serif;
-            color: #4a148c;
-            margin-bottom: 22px;
-            font-size: 1.5em;
-            font-weight: 400;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 12px;
-            letter-spacing: -0.01em;
-        }
+/* ---------- utility type ---------- */
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--teal-deep);
+  font-weight:500;
+  display:inline-flex;
+  align-items:center;
+  gap:.6em;
+}
+.eyebrow::before{
+  content:"";
+  width:22px;height:2px;background:var(--teal);
+  display:inline-block;
+}
+.mono{font-family:var(--mono)}
 
-        .abstract {
-            text-align: justify;
-            font-size: 1.02em;
-            line-height: 1.75;
-            color: #2a2a2a;
-            hyphens: auto;
-        }
+/* ============================================================
+   HERO
+============================================================ */
+.hero{
+  position:relative;
+  background:
+    radial-gradient(120% 90% at 78% 8%, #14213a 0%, rgba(20,33,58,0) 55%),
+    linear-gradient(180deg,#0C1222 0%,#0A0F1C 100%);
+  color:#EAF0F6;
+  overflow:hidden;
+  border-bottom:1px solid #1d2942;
+}
+.hero .wrap{padding-top:clamp(30px,6vw,58px);padding-bottom:clamp(34px,6vw,60px);position:relative;z-index:2}
 
-        .highlights {
-            background: #f5f3f9;
-            border: 1px solid #d5cce5;
-            border-radius: 4px;
-            padding: 32px;
-            margin: 30px 0;
-        }
+.venue-row{
+  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:#8FA0B8;margin-bottom:26px;
+}
+.venue-tag{
+  border:1px solid #2b3a58;border-radius:2px;padding:4px 9px;color:#C7D3E4;
+  background:rgba(255,255,255,.02);
+}
+.venue-tag.oral{color:var(--amber-lum);border-color:#5a4620}
 
-        .highlights h3 {
-            font-family: 'Segoe UI', sans-serif;
-            color: #4a148c;
-            margin-bottom: 20px;
-            font-size: 1.25em;
-            font-weight: 400;
-        }
+h1.title{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:clamp(2rem,5.1vw,3.5rem);
+  line-height:1.08;
+  letter-spacing:-.015em;
+  max-width:16ch;
+  margin-bottom:22px;
+}
+h1.title .em{color:var(--teal-lum);font-style:italic;font-weight:400}
 
-        .highlights ul {
-            list-style: none;
-            padding: 0;
-        }
+.dek{
+  font-size:clamp(1.02rem,1.7vw,1.24rem);
+  color:#B9C6D8;
+  max-width:56ch;
+  line-height:1.55;
+  font-weight:450;
+  margin-bottom:30px;
+}
+.dek b{color:var(--amber-lum);font-weight:600}
 
-        .highlights li {
-            padding: 10px 0 10px 30px;
-            position: relative;
-            line-height: 1.7;
-            font-size: 0.98em;
-        }
+/* live EEG signature */
+.scope{
+  position:relative;
+  margin:8px 0 30px;
+  border:1px solid #24314c;
+  border-radius:4px;
+  background:linear-gradient(180deg,#0a1120 0%,#0c1424 100%);
+  overflow:hidden;
+}
+#eeg{display:block;width:100%;height:190px}
+.scope-labels{
+  position:absolute;inset:0;pointer-events:none;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:12px 14px;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+}
+.scope-labels .lab{display:flex;flex-direction:column;gap:5px}
+.scope-labels .lab.r{align-items:flex-end;text-align:right}
+.scope-labels .tick{height:2px;width:34px;background:var(--teal-lum);opacity:.9}
+.scope-labels .lab.r .tick{background:var(--amber-lum)}
+.scope-labels .t-teal{color:var(--teal-lum)}
+.scope-labels .t-amber{color:var(--amber-lum)}
+.scope-labels .sub{color:#7f8ea6;letter-spacing:.1em;font-size:.6rem}
+.scope-cap{
+  font-family:var(--mono);font-size:.66rem;color:#6f7e97;letter-spacing:.04em;
+  margin:-18px 0 0;
+}
 
-        .highlights li:before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: #6a1b9a;
-            font-weight: bold;
-        }
+.authors{
+  font-size:1rem;line-height:1.85;color:#DCE5F0;max-width:70ch;margin-bottom:14px;font-weight:450;
+}
+.authors sup{color:var(--teal-lum);font-size:.7em;font-family:var(--mono);padding-left:1px;font-weight:500}
+.authors .me{color:#fff;font-weight:600;border-bottom:2px solid var(--teal);padding-bottom:1px}
+.affil{
+  font-family:var(--mono);font-size:.74rem;line-height:1.9;color:#8FA0B8;letter-spacing:.01em;max-width:80ch;
+}
+.affil sup{color:var(--teal-lum);padding-right:3px}
 
-        .dataset-info {
-            background: #fff8e1;
-            border-left: 4px solid #ffa000;
-            padding: 20px 25px;
-            margin: 25px 0;
-            font-size: 0.96em;
-            line-height: 1.7;
-        }
+.cta{display:flex;flex-wrap:wrap;gap:11px;margin-top:30px}
+.btn{
+  font-family:var(--mono);font-size:.82rem;letter-spacing:.02em;
+  text-decoration:none;padding:11px 18px;border-radius:3px;
+  display:inline-flex;align-items:center;gap:9px;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease;
+  border:1px solid transparent;font-weight:500;
+}
+.btn svg{width:15px;height:15px;flex:none}
+.btn-primary{background:var(--teal-lum);color:#052420}
+.btn-primary:hover{background:#5ff0de;transform:translateY(-2px);box-shadow:0 8px 22px rgba(63,224,206,.22)}
+.btn-amber{background:transparent;color:var(--amber-lum);border-color:#4d3c1c}
+.btn-amber:hover{background:rgba(251,183,74,.09);border-color:var(--amber-lum);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:#CBD6E6;border-color:#2c3a57}
+.btn-ghost:hover{background:rgba(255,255,255,.04);border-color:#43567c;color:#fff;transform:translateY(-2px)}
 
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 25px;
-        }
+/* ============================================================
+   STICKY NAV
+============================================================ */
+.nav{
+  position:sticky;top:0;z-index:40;
+  background:rgba(245,247,249,.86);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:var(--maxw);margin:0 auto;padding:0 var(--pad);
+  display:flex;align-items:center;gap:8px;height:52px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-inner .brand{
+  font-family:var(--mono);font-weight:600;font-size:.78rem;letter-spacing:.02em;color:var(--text);
+  margin-right:auto;white-space:nowrap;padding-right:12px;
+}
+.nav-inner a{
+  font-family:var(--mono);font-size:.73rem;letter-spacing:.03em;text-transform:uppercase;
+  text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:3px;white-space:nowrap;
+  transition:color .15s,background .15s;
+}
+.nav-inner a:hover{color:var(--text);background:var(--line-2)}
+.nav-inner a.active{color:var(--teal-deep);background:var(--teal-wash)}
 
-        .team-member {
-            padding: 20px;
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 3px;
-        }
+/* ============================================================
+   SECTIONS (light body)
+============================================================ */
+.sec{padding:clamp(52px,7vw,88px) 0;border-bottom:1px solid var(--line)}
+.sec.alt{background:#fff}
+.sec-head{margin-bottom:34px;max-width:70ch}
+h2{
+  font-family:var(--serif);font-weight:500;
+  font-size:clamp(1.55rem,3.1vw,2.15rem);line-height:1.15;letter-spacing:-.01em;
+  margin-top:12px;color:var(--text);
+}
+h2 .accent{color:var(--teal)}
+.sec-head p{color:var(--muted);font-size:1.05rem;margin-top:14px;max-width:62ch}
 
-        .team-member h4 {
-            font-family: 'Segoe UI', sans-serif;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            font-size: 1.05em;
-            font-weight: 500;
-        }
+p.body{font-size:1.04rem;color:#28323F;line-height:1.72;max-width:66ch;margin-bottom:18px}
+p.body b{font-weight:600;color:var(--text)}
+p.body a{color:var(--teal-deep);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
+.note{font-family:var(--mono);font-size:.78rem;color:var(--muted-2);letter-spacing:.01em}
 
-        .team-member p {
-            font-size: 0.9em;
-            color: #666;
-            line-height: 1.5;
-        }
+/* ---------- THE FINDING ---------- */
+.finding{
+  display:grid;grid-template-columns:0.92fr 1.08fr;gap:clamp(28px,4vw,56px);align-items:center;
+}
+.finding-num{font-family:var(--serif)}
+.finding-num .big{
+  font-size:clamp(4.2rem,12vw,8rem);line-height:.82;font-weight:600;letter-spacing:-.04em;
+  color:var(--amber);display:block;
+}
+.finding-num .big .arrow{color:var(--muted-2);font-size:.5em;vertical-align:middle;padding:0 .1em}
+.finding-num .cap{
+  font-family:var(--mono);font-size:.8rem;letter-spacing:.05em;color:var(--muted);
+  margin-top:16px;line-height:1.7;text-transform:uppercase;
+}
+.finding-num .cap b{color:var(--amber);font-weight:600}
+.finding-txt p{font-size:1.08rem;line-height:1.7;color:#28323F;margin-bottom:16px}
+.finding-txt p b{color:var(--text);font-weight:600}
 
-        footer {
-            margin-top: 70px;
-            padding: 35px 20px;
-            text-align: center;
-            background: white;
-            border-top: 1px solid #e5e5e5;
-            color: #666;
-            font-size: 0.92em;
-        }
+/* ---------- GAP CHART ---------- */
+.chart-card{
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  padding:clamp(22px,3vw,34px);margin-top:8px;
+}
+.chart-title{font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.chart-sub{font-size:.92rem;color:var(--muted);margin-bottom:26px;max-width:60ch}
+.bars{display:flex;gap:clamp(14px,4vw,44px);align-items:flex-end;height:240px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;min-width:0}
+.bar-val{font-family:var(--mono);font-weight:600;font-size:1.05rem;margin-bottom:8px}
+.bar-track{width:100%;max-width:120px;display:flex;align-items:flex-end;height:100%}
+.bar-fill{
+  width:100%;height:0;border-radius:3px 3px 0 0;
+  transition:height 1.1s cubic-bezier(.2,.8,.2,1);
+}
+.bar-fill.teal{background:linear-gradient(180deg,#22b7a8,#0E9B8E)}
+.bar-fill.amber{background:linear-gradient(180deg,#e79a2c,#B9720A)}
+.bar-lab{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5;letter-spacing:.01em;max-width:130px}
+.bar-lab .hl{color:var(--text);font-weight:600;display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.bar-lab.pt .hl{color:var(--amber)}
+.gap-flag{
+  display:inline-flex;align-items:center;gap:8px;margin-top:22px;
+  font-family:var(--mono);font-size:.78rem;color:var(--amber-deep);
+  background:var(--amber-wash);border:1px solid #efd9b3;border-radius:3px;padding:7px 12px;
+}
 
-        footer p {
-            margin: 10px 0;
-            line-height: 1.6;
-        }
+@media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
 
-        .footer-copyright {
-            margin-top: 18px;
-            font-size: 0.88em;
-            color: #888;
-        }
+/* ---------- CONTRIBUTIONS ---------- */
+.contribs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:c}
+.contrib{
+  background:#fff;border:1px solid var(--line);border-radius:6px;padding:26px 24px 28px;
+  position:relative;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.contrib:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(16,32,46,.07);border-color:#d3dbe2}
+.contrib .idx{
+  font-family:var(--mono);font-size:.8rem;color:var(--teal);font-weight:600;
+  display:block;margin-bottom:16px;letter-spacing:.05em;
+}
+.contrib h3{font-family:var(--serif);font-size:1.22rem;font-weight:600;margin-bottom:10px;line-height:1.25}
+.contrib p{font-size:.96rem;color:var(--muted);line-height:1.62}
+.contrib p b{color:var(--text);font-weight:600}
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5em;
-            }
+/* ---------- ARCHITECTURE ---------- */
+.arch{
+  background:var(--ink);border-radius:8px;padding:clamp(26px,4vw,44px) clamp(20px,3vw,36px);
+  color:#DCE5F0;margin-top:6px;overflow:hidden;
+}
+.arch-flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;justify-content:center}
+.node{
+  flex:1 1 130px;min-width:120px;max-width:190px;
+  border:1px solid #2a3a58;border-radius:5px;background:rgba(255,255,255,.02);
+  padding:16px 14px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:6px;
+}
+.node .nt{font-family:var(--sans);font-weight:600;font-size:.92rem;color:#fff;line-height:1.25}
+.node .ns{font-family:var(--mono);font-size:.66rem;color:#8FA0B8;letter-spacing:.03em;line-height:1.5}
+.node.io{border-color:#2c5850;background:rgba(63,224,206,.05)}
+.node.io .nt{color:var(--teal-lum)}
+.node.out{border-color:#5a4620;background:rgba(251,183,74,.05)}
+.node.out .nt{color:var(--amber-lum);font-family:var(--mono);font-size:.78rem;letter-spacing:.02em}
+.arrow{display:flex;align-items:center;justify-content:center;color:#3f5375;flex:0 0 30px;font-size:1.1rem}
+.arch-cap{font-family:var(--mono);font-size:.72rem;color:#6f7e97;margin-top:22px;text-align:center;letter-spacing:.02em;line-height:1.6}
 
-            .section {
-                padding: 25px 20px;
-            }
+/* ---------- DATASETS ---------- */
+.ds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.ds{
+  border:1px solid var(--line);border-radius:6px;background:#fff;padding:22px 20px 24px;
+  display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;
+}
+.ds:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(16,32,46,.06)}
+.ds .tag{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 8px;border-radius:2px;align-self:flex-start;margin-bottom:14px;font-weight:500;
+}
+.ds .tag.h{background:var(--teal-wash);color:var(--teal-deep)}
+.ds .tag.p{background:var(--amber-wash);color:var(--amber-deep)}
+.ds h3{font-family:var(--serif);font-size:1.28rem;font-weight:600;margin-bottom:4px}
+.ds .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);margin-bottom:16px;letter-spacing:.02em}
+.ds ul{list-style:none;font-size:.9rem;color:#3a4552;line-height:1.5}
+.ds li{padding:5px 0;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;gap:10px}
+.ds li:first-child{border-top:none}
+.ds li .k{color:var(--muted)}
+.ds li .v{font-family:var(--mono);font-weight:500;color:var(--text);text-align:right}
+.ds.pt{border-color:#e6d3ab;box-shadow:0 0 0 1px #f2e3c5 inset}
+.ds .ds-link{
+  margin-top:16px;font-family:var(--mono);font-size:.74rem;color:var(--amber-deep);
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:500;
+}
+.ds .ds-link:hover{text-decoration:underline}
 
-            header {
-                padding: 40px 20px 35px;
-            }
+/* ---------- RESULTS TABLE ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+table.res{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+table.res th,table.res td{padding:11px 16px;text-align:left}
+table.res thead th{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);background:#fafbfc;
+}
+table.res td.num,table.res th.num{text-align:right;font-family:var(--mono)}
+table.res .grp td{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--teal-deep);font-weight:600;background:var(--teal-wash);padding-top:10px;padding-bottom:10px;
+}
+table.res .grp.pt td{color:var(--amber-deep);background:var(--amber-wash)}
+table.res tbody tr.row td{border-bottom:1px solid var(--line-2);color:#3a4552}
+table.res tbody tr.row:last-child td{border-bottom:none}
+table.res tr.ours td{background:#f4fbfa;color:var(--text);font-weight:600;box-shadow:inset 3px 0 0 var(--teal)}
+table.res tr.ours td .win{color:var(--teal-deep);font-size:.7rem;font-family:var(--mono);margin-left:6px}
+.tbl-cap{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin-top:12px;line-height:1.6;max-width:70ch}
 
-            .team-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+/* ---------- HEATMAP (class-wise F1) ---------- */
+.heat{margin-top:44px}
+.heat-grid{display:grid;grid-template-columns:auto repeat(5,1fr);gap:5px;min-width:520px}
+.heat-wrap{overflow-x:auto}
+.heat .hh{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;padding:6px 4px;
+}
+.heat .rh{
+  font-family:var(--mono);font-size:.76rem;color:var(--text);font-weight:500;
+  display:flex;align-items:center;padding:0 12px 0 4px;white-space:nowrap;
+}
+.heat .rh .rt{font-size:.62rem;color:var(--muted-2);margin-left:7px;letter-spacing:.08em}
+.cell{
+  aspect-ratio:auto;min-height:52px;border-radius:4px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;font-size:1rem;
+  background:#EAF0F0;color:#0b2b28;
+}
+.heat-legend{
+  display:flex;align-items:center;gap:12px;margin-top:18px;
+  font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.02em;
+}
+.heat-legend .grad{
+  height:10px;width:180px;border-radius:5px;
+  background:linear-gradient(90deg,#EAF0F0,#0E9B8E);
+}
+
+/* ---------- SLEEP ARCHITECTURE / LENSES ---------- */
+.lenses{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
+.lens{border:1px solid var(--line);border-radius:6px;background:#fff;padding:28px 26px}
+.lens .ltag{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:14px;display:block}
+.lens h3{font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:12px;line-height:1.25}
+.lens p{font-size:.96rem;color:#3a4552;line-height:1.62;margin-bottom:14px}
+.lens p b{color:var(--text);font-weight:600}
+
+/* paired transition bars */
+.trans{margin:20px 0 4px}
+.trans-title{font-family:var(--mono);font-size:.74rem;color:var(--muted);letter-spacing:.03em;margin-bottom:14px}
+.pair{display:flex;flex-direction:column;gap:12px}
+.prow{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:12px}
+.prow .pl{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-align:right;line-height:1.3}
+.ptrack{background:var(--line-2);border-radius:3px;height:26px;position:relative;overflow:hidden}
+.pfill{height:100%;width:0;border-radius:3px;transition:width 1.1s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:9px;font-family:var(--mono);font-size:.72rem;font-weight:600;color:#fff}
+.pfill.teal{background:linear-gradient(90deg,#0E9B8E,#22b7a8)}
+.pfill.amber{background:linear-gradient(90deg,#B9720A,#e79a2c)}
+.trans-key{display:flex;gap:18px;margin-top:16px;font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.trans-key span{display:inline-flex;align-items:center;gap:7px}
+.trans-key .sw{width:12px;height:12px;border-radius:3px}
+.sw.teal{background:#0E9B8E}.sw.amber{background:#B9720A}
+
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.stat{border:1px solid var(--line);border-radius:5px;background:#fff;padding:16px 20px;flex:1 1 150px;min-width:140px}
+.stat .sv{font-family:var(--mono);font-size:1.5rem;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.stat .sv.amber{color:var(--amber)}
+.stat .sk{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px;line-height:1.5}
+
+/* ---------- GRADCAM schematic ---------- */
+.gradcam{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
+.gc{border:1px solid var(--line);border-radius:6px;background:#fff;padding:20px 22px}
+.gc .gct{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.gc.bad .gct{color:var(--amber-deep)}
+.gc.good .gct{color:var(--teal-deep)}
+.gc .gcs{font-size:.86rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.gc svg{width:100%;height:78px;display:block}
+
+/* ---------- CITE / BIBTEX ---------- */
+.cite-card{background:var(--ink);border-radius:8px;overflow:hidden;border:1px solid #1f2c46}
+.cite-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #1f2c46}
+.cite-bar .cl{font-family:var(--mono);font-size:.74rem;color:#8FA0B8;letter-spacing:.04em}
+.copy-btn{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.03em;color:#0C1222;background:var(--teal-lum);
+  border:none;border-radius:3px;padding:7px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  transition:background .15s,transform .12s;font-weight:600;
+}
+.copy-btn:hover{background:#5ff0de}
+.copy-btn:active{transform:scale(.96)}
+.copy-btn.done{background:var(--amber-lum)}
+pre.bib{
+  margin:0;padding:22px 20px;overflow-x:auto;
+  font-family:var(--mono);font-size:.8rem;line-height:1.75;color:#C7D3E4;
+}
+pre.bib .k{color:var(--teal-lum)}
+pre.bib .s{color:#B9C6D8}
+pre.bib .f{color:var(--amber-lum)}
+
+/* ---------- ETHICS / ACK ---------- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.blockcard{border-left:3px solid var(--teal);background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:0 6px 6px 0;padding:24px 26px}
+.blockcard.amber{border-left-color:var(--amber)}
+.blockcard h3{font-family:var(--serif);font-size:1.15rem;font-weight:600;margin-bottom:12px}
+.blockcard p{font-size:.94rem;color:#3a4552;line-height:1.62}
+.blockcard .id{font-family:var(--mono);font-size:.8rem;color:var(--text);background:var(--line-2);padding:2px 6px;border-radius:2px}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--ink);color:#9AAAC0;padding:clamp(44px,6vw,68px) 0 40px}
+footer .fgrid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;align-items:flex-start}
+footer .fbrand{font-family:var(--serif);color:#EAF0F6;font-size:1.15rem;font-weight:500;max-width:30ch;line-height:1.4}
+footer .flinks{display:flex;flex-wrap:wrap;gap:10px}
+footer .flinks a{
+  font-family:var(--mono);font-size:.78rem;text-decoration:none;color:#C7D3E4;
+  border:1px solid #263450;border-radius:3px;padding:8px 13px;transition:border-color .15s,color .15s,background .15s;
+}
+footer .flinks a:hover{border-color:var(--teal-lum);color:var(--teal-lum);background:rgba(63,224,206,.05)}
+footer .fbottom{
+  margin-top:40px;padding-top:24px;border-top:1px solid #1c2942;
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
+  font-family:var(--mono);font-size:.72rem;color:#6f7e97;letter-spacing:.02em;line-height:1.7;
+}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .finding{grid-template-columns:1fr;gap:8px}
+  .contribs{grid-template-columns:1fr}
+  .ds-grid{grid-template-columns:1fr 1fr}
+  .lenses,.gradcam,.two-col{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  #eeg{height:150px}
+  .ds-grid{grid-template-columns:1fr}
+  .bars{height:200px;gap:12px}
+  .arch-flow{flex-direction:column;align-items:stretch}
+  .arrow{flex:0 0 26px;transform:rotate(90deg)}
+  .node{max-width:none}
+  .btn{font-size:.78rem;padding:10px 14px}
+  .venue-row{font-size:.66rem}
+}
+</style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>AI GENERALISATION GAP IN COMORBID SLEEP DISORDER STAGING</h1>
-            
-            <div class="authors">
-                Saswata Bose⋄, Suvadeep Maiti†⋄, Shivam Kumar Sharma⋄, Mythirayee S‡, Tapabrata Chakraborti†, Srijitesh P R‡, Raju S. Bapi⋄
-            </div>
-            
-            <div class="affiliations">
-                ⋄International Institute of Information Technology (IIIT-H), Hyderabad, India<br>
-                †Alan Turing Institute, London and University College, London, United Kingdom<br>
-                ‡National Institute of Mental Health and Neuroscience (NIMHANS), Bangalore, India
-            </div>
-            
-            <div class="links">
-                <a href="#" class="link-btn">Paper (Coming Soon)</a>
-                <a href="https://github.com/HimalayanSaswataBose/iSLEEPS_GeneralisationGapAndExplainability" class="link-btn">Github</a>
-            </div>
-        </div>
-    </header>
 
-    <div class="container">
-        
-        <div class="section">
-            <h2>Abstract</h2>
-            <p class="abstract">
-                Accurate sleep staging is essential for diagnosing disorders like obstructive sleep apnea (OSA) and hypopnea, both highly prevalent among stroke patients. Conventional polysomnography (PSG), though clinically reliable, is labor-intensive, costly, and reliant on manual scoring. Recent advances in deep learning enable automated staging from raw EEG of healthy participants. However, our investigations reveal that most models fail to generalize to clinical populations with disrupted sleep architecture. This paper is meant to demonstrate this phenomenon in a structured manner highlighting this issue through Grad-CAM based interpretations. To do this, we introduce iSLEEPS, a new clinically annotated ischemic stroke dataset (to be made public in near future), and evaluate a deep learning framework combining SE-ResNet feature extraction with bidirectional LSTM layers for contextual sleep stage classification using single-channel EEG. As expected, the model indicates poor cross-domain generalization between healthy and diseased patients. Comparison of the attention visualisations with expert clinical feedback reveals that this might be due to the model attending to physiologically uninformative EEG regions in patient data. Further supportive statistical and computational analyses confirm significant differences in sleep architecture between healthy and ischemic stroke subjects. These findings highlight the need for subject-aware or disease-specific sleep staging models that focus on medically relevant features, alongside clinical validation of automated tagging before integration into treatment workflows.
-            </p>
-        </div>
-        </div>
-
-        <div class="section">
-            <h2>Ethical Compliance</h2>
-            <p style="line-height: 1.75; margin-bottom: 20px;">
-                The study was carried out at the NIMHANS, Bengaluru, India, a leading tertiary care referral teaching hospital. Approval was obtained from the NIMHANS Institutional Ethics Committee [No. NIMHANS/34th IEC (BS&NS DIV.)/2022 dated 05.02.2022]. Ethical considerations were strictly followed throughout the study.
-            </p>
-        </div>
-
-        <div class="section">
-            <h2>Acknowledgments</h2>
-            <p style="line-height: 1.75;">
-                We acknowledge IHub-Data, IIIT Hyderabad (H1-002), for financial assistance. Tapabrata Chakraborti is supported by the Turing-Roche Strategic Partnership and UCL NIHR Biomedical Research Centre.
-            </p>
-        </div>
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="venue-row">
+      <span class="venue-tag oral">◆ Oral Presentation</span>
+      <span class="venue-tag">IEEE ISBI 2026</span>
+      <span>Int'l Symposium on Biomedical Imaging</span>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>The iSLEEPS dataset and code will be released upon publication.</p>
-            <p class="footer-copyright">© 2025 For inquiries, please contact the authors through their respective institutions.</p>
+    <h1 class="title">AI Generalisation Gap in <span class="em">Comorbid</span> Sleep Disorder Staging</h1>
+
+    <p class="dek">Deep sleep-staging models trained on healthy EEG reach state-of-the-art accuracy — then <b>break down on stroke patients</b>. Grad-CAM shows the failure isn't just in the score, but in <em>where the model looks</em>.</p>
+
+    <!-- signature: live EEG that morphs healthy -> patient -->
+    <div class="scope">
+      <canvas id="eeg" aria-hidden="true"></canvas>
+      <div class="scope-labels">
+        <div class="lab"><span class="tick"></span><span class="t-teal">Healthy EEG</span><span class="sub">regular architecture</span></div>
+        <div class="lab r"><span class="tick"></span><span class="t-amber">Ischemic stroke EEG</span><span class="sub">disrupted architecture</span></div>
+      </div>
+    </div>
+    <p class="scope-cap">Single-channel EEG (C4–M1) — the same signal, two very different sleepers.</p>
+
+    <div class="authors">
+      <span class="me">Saswata Bose</span><sup>♦</sup>,
+      Suvadeep Maiti<sup>♦†</sup>,
+      Shivam Kumar Sharma<sup>♦</sup>,
+      Mythirayee S<sup>‡</sup>,
+      Tapabrata Chakraborti<sup>†</sup>,
+      Srijitesh Rajendran<sup>‡♣</sup>,
+      Raju S. Bapi<sup>♦</sup>
+    </div>
+    <div class="affil">
+      <sup>♦</sup>International Institute of Information Technology (IIIT-H), Hyderabad, India &nbsp;·&nbsp;
+      <sup>†</sup>Alan Turing Institute &amp; University College London, UK<br>
+      <sup>♣</sup>Queen Square Institute of Neurology, University College London, UK &nbsp;·&nbsp;
+      <sup>‡</sup>National Institute of Mental Health and Neurosciences (NIMHANS), Bangalore, India
+    </div>
+
+    <div class="cta">
+      <a class="btn btn-primary" href="https://arxiv.org/abs/2603.23582" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v6h6"/></svg>
+        Read the paper
+      </a>
+      <a class="btn btn-amber" href="https://ieeexplore.ieee.org/abstract/document/11515484" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        IEEE Xplore
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/HimalayanSaswataBose/iSLEEPS_GeneralisationGapAndExplainability" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.85 9.73.5.1.68-.22.68-.49 0-.24-.01-.88-.01-1.73-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        Code
+      </a>
+      <a class="btn btn-ghost" href="https://tinyurl.com/iSLEEPSv1" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+        iSLEEPS dataset
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" aria-label="Section navigation">
+  <div class="nav-inner">
+    <span class="brand">iSLEEPS</span>
+    <a href="#finding">Finding</a>
+    <a href="#abstract">Abstract</a>
+    <a href="#method">Method</a>
+    <a href="#data">Datasets</a>
+    <a href="#results">Results</a>
+    <a href="#xai">Explainability</a>
+    <a href="#architecture">Sleep Architecture</a>
+    <a href="#cite">Cite</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ FINDING ============ -->
+<section class="sec" id="finding">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">The finding</span>
+      <h2>A model that reads healthy sleep well <span class="accent">fails</span> on the patients who need it most.</h2>
+    </div>
+
+    <div class="finding reveal">
+      <div class="finding-num">
+        <span class="big">55<span style="font-size:.55em">%</span></span>
+        <div class="cap">Accuracy of an <b>SHHS-trained</b> model when deployed on ischemic-stroke sleep — down from <b>88%</b> on healthy sleepers. A drop of <b>≈30 points</b>, exactly where clinical reliability matters.</div>
+      </div>
+      <div class="finding-txt">
+        <p>Automated sleep staging is trained almost entirely on <b>healthy</b> EEG. But the patients who most need overnight monitoring — stroke survivors with comorbid apnea — have profoundly disrupted sleep architecture.</p>
+        <p>We show this domain gap is real, large, and <b>diagnosable</b>: statistical tests separate the two populations perfectly, and Grad-CAM reveals the healthy-trained model attends to <b>physiologically uninformative</b> EEG regions on patient data — the right answer for the wrong reasons, and often the wrong answer entirely.</p>
+      </div>
+    </div>
+
+    <!-- GAP CHART -->
+    <div class="chart-card reveal" id="gapChart">
+      <div class="chart-title">The generalisation crash — accuracy by train → test domain</div>
+      <div class="chart-sub">The same architecture recovers to 74.7% once it is trained on stroke data. The gap is about <em>domain</em>, not difficulty.</div>
+      <div class="bars">
+        <div class="bar-col">
+          <div class="bar-val" style="color:var(--teal-deep)">87.8%</div>
+          <div class="bar-track"><div class="bar-fill teal" data-h="100"></div></div>
+          <div class="bar-lab"><span class="hl">In-domain</span>SHHS → SHHS<br>(healthy → healthy)</div>
         </div>
-    </footer>
+        <div class="bar-col">
+          <div class="bar-val" style="color:var(--amber-deep)">55.1%</div>
+          <div class="bar-track"><div class="bar-fill amber" data-h="62.8"></div></div>
+          <div class="bar-lab pt"><span class="hl">Transfer</span>SHHS → iSLEEPS<br>(healthy → patient)</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-val" style="color:var(--teal-deep)">74.7%</div>
+          <div class="bar-track"><div class="bar-fill teal" data-h="85.1"></div></div>
+          <div class="bar-lab"><span class="hl">In-domain</span>iSLEEPS → iSLEEPS<br>(patient → patient)</div>
+        </div>
+      </div>
+      <span class="gap-flag">▼ −32.7 accuracy points when a healthy-trained model meets patient sleep</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABSTRACT ============ -->
+<section class="sec alt" id="abstract">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Abstract</span></div>
+    <div class="reveal">
+      <p class="body">Accurate sleep staging is essential for diagnosing obstructive sleep apnea and hypopnea in stroke patients. Although polysomnography is reliable, it is costly, labor-intensive, and manually scored. While deep learning enables automated EEG-based sleep staging in healthy subjects, our analysis shows <b>poor generalisation to clinical populations with disrupted sleep</b>. Using Grad-CAM interpretations, we systematically demonstrate this limitation.</p>
+      <p class="body">We introduce <b>iSLEEPS</b>, a newly clinically annotated ischemic-stroke dataset, and evaluate an SE-ResNet plus bidirectional LSTM model for single-channel EEG sleep staging. As expected, cross-domain performance between healthy and diseased subjects is poor. Attention visualisations, supported by clinical expert feedback, show the model focuses on <b>physiologically uninformative EEG regions</b> in patient data. Statistical and computational analyses further confirm significant sleep-architecture differences between healthy and ischemic-stroke cohorts — highlighting the need for subject-aware or disease-specific models with clinical validation before deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTRIBUTIONS ============ -->
+<section class="sec" id="contributions">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Contributions</span>
+      <h2>Three things this paper puts on the table.</h2>
+    </div>
+    <div class="contribs">
+      <div class="contrib reveal">
+        <span class="idx">01 — Dataset</span>
+        <h3>iSLEEPS</h3>
+        <p>The first PSG benchmark of <b>100 ischemic-stroke patients</b> with severe comorbid sleep disorders — a population absent from every public sleep-staging dataset.</p>
+      </div>
+      <div class="contrib reveal">
+        <span class="idx">02 — Model</span>
+        <h3>SOTA benchmark</h3>
+        <p>An <b>SE-ResNet + Bi-LSTM</b> model that sets state-of-the-art on healthy cohorts <b>and</b> on iSLEEPS — while exposing the limits of models trained on the healthy alone.</p>
+      </div>
+      <div class="contrib reveal">
+        <span class="idx">03 — Analysis</span>
+        <h3>Clinician-validated XAI</h3>
+        <p>Statistical and Grad-CAM analyses, checked against expert feedback, show deep models <b>do not transfer</b> between healthy and comorbid cohorts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section class="sec alt" id="method">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Method</span>
+      <h2>Reading a night in <span class="accent">30-second</span> windows.</h2>
+      <p>A sliding window of consecutive epochs gives temporal context; the model predicts the stage of the central epoch. An SE-ResNet extracts spectral-temporal features while suppressing noise, and stacked Bi-LSTMs model long-range stage transitions.</p>
+    </div>
+
+    <div class="arch reveal">
+      <div class="arch-flow">
+        <div class="node io"><span class="nt">Raw EEG epochs</span><span class="ns">window = 9 · stride = 4</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nt">SE-ResNet-18</span><span class="ns">squeeze-&amp;-excite features</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nt">Bi-LSTM × 3</span><span class="ns">temporal context</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nt">Fully connected</span><span class="ns">stage logits</span></div>
+        <div class="arrow">→</div>
+        <div class="node out"><span class="nt">W · N1 · N2 · N3 · REM</span></div>
+      </div>
+      <div class="arch-cap">Trained per dataset · Adam (lr 1e-3) · NLL loss · batch 128 · leave-one-out cross-validation. Grad-CAM heatmaps trace which time–frequency regions drive each decision.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATASETS ============ -->
+<section class="sec" id="data">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Datasets</span>
+      <h2>Three healthy cohorts, one clinical reality.</h2>
+      <p>All models run on raw single-channel EEG so the comparison is clean across sources.</p>
+    </div>
+    <div class="ds-grid">
+      <div class="ds reveal">
+        <span class="tag h">Healthy</span>
+        <h3>SleepEDF-20</h3>
+        <div class="sub">R&amp;K staging</div>
+        <ul>
+          <li><span class="k">Subjects</span><span class="v">20</span></li>
+          <li><span class="k">Recordings</span><span class="v">39</span></li>
+          <li><span class="k">Age</span><span class="v">25–34</span></li>
+          <li><span class="k">CV folds</span><span class="v">20</span></li>
+        </ul>
+      </div>
+      <div class="ds reveal">
+        <span class="tag h">Healthy</span>
+        <h3>SleepEDF-78</h3>
+        <div class="sub">extended cohort</div>
+        <ul>
+          <li><span class="k">Subjects</span><span class="v">78</span></li>
+          <li><span class="k">Staging</span><span class="v">R&amp;K</span></li>
+          <li><span class="k">CV folds</span><span class="v">10</span></li>
+        </ul>
+      </div>
+      <div class="ds reveal">
+        <span class="tag h">Healthy</span>
+        <h3>SHHS</h3>
+        <div class="sub">AASM staging</div>
+        <ul>
+          <li><span class="k">Cohort</span><span class="v">6,441</span></li>
+          <li><span class="k">Used</span><span class="v">329</span></li>
+          <li><span class="k">Sleepers</span><span class="v">typical</span></li>
+          <li><span class="k">CV folds</span><span class="v">5</span></li>
+        </ul>
+      </div>
+      <div class="ds pt reveal">
+        <span class="tag p">Patient · new</span>
+        <h3>iSLEEPS</h3>
+        <div class="sub">ischemic stroke · NIMHANS</div>
+        <ul>
+          <li><span class="k">Patients</span><span class="v">100</span></li>
+          <li><span class="k">Mean age</span><span class="v">50.5</span></li>
+          <li><span class="k">Sex (F/M)</span><span class="v">23 / 77</span></li>
+          <li><span class="k">Severe apnea</span><span class="v">38%</span></li>
+          <li><span class="k">Moderate apnea</span><span class="v">23%</span></li>
+        </ul>
+        <a class="ds-link" href="https://tinyurl.com/iSLEEPSv1" target="_blank" rel="noopener">Access dataset →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="sec alt" id="results">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Results</span>
+      <h2>State-of-the-art on healthy data — and the honest number on patients.</h2>
+    </div>
+
+    <div class="reveal">
+      <div class="tbl-wrap">
+        <table class="res">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th class="num">ACC</th>
+              <th class="num">MF1</th>
+              <th class="num">κ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="grp"><td colspan="4">SleepEDF-20 — healthy cohort</td></tr>
+            <tr class="row"><td>NAS</td><td class="num">82.7</td><td class="num">75.9</td><td class="num">0.76</td></tr>
+            <tr class="row"><td>DeepSleepNet</td><td class="num">82.0</td><td class="num">76.9</td><td class="num">0.76</td></tr>
+            <tr class="row"><td>XSleepNet2</td><td class="num">83.9</td><td class="num">78.7</td><td class="num">0.77</td></tr>
+            <tr class="row"><td>SleepContextNet</td><td class="num">84.8</td><td class="num">79.8</td><td class="num">0.79</td></tr>
+            <tr class="row"><td>SEResnet-Transformer</td><td class="num">79.3</td><td class="num">74.7</td><td class="num">0.72</td></tr>
+            <tr class="ours"><td>Ours<span class="win">▲ best</span></td><td class="num">87.5</td><td class="num">82.5</td><td class="num">0.82</td></tr>
+
+            <tr class="grp"><td colspan="4">SleepEDF-78 — healthy cohort</td></tr>
+            <tr class="row"><td>NAS</td><td class="num">80.0</td><td class="num">72.7</td><td class="num">0.72</td></tr>
+            <tr class="row"><td>XSleepNet2</td><td class="num">80.3</td><td class="num">76.4</td><td class="num">0.73</td></tr>
+            <tr class="row"><td>SleepContextNet</td><td class="num">82.7</td><td class="num">77.2</td><td class="num">0.76</td></tr>
+            <tr class="row"><td>SEResnet-Transformer</td><td class="num">73.6</td><td class="num">70.6</td><td class="num">0.68</td></tr>
+            <tr class="ours"><td>Ours<span class="win">▲ best</span></td><td class="num">83.8</td><td class="num">78.9</td><td class="num">0.77</td></tr>
+
+            <tr class="grp"><td colspan="4">SHHS — healthy cohort</td></tr>
+            <tr class="row"><td>NAS</td><td class="num">81.9</td><td class="num">75.3</td><td class="num">0.74</td></tr>
+            <tr class="row"><td>SleepContextNet</td><td class="num">86.4</td><td class="num">80.5</td><td class="num">0.81</td></tr>
+            <tr class="row"><td>SEResnet-Transformer</td><td class="num">79.0</td><td class="num">69.3</td><td class="num">0.71</td></tr>
+            <tr class="ours"><td>Ours<span class="win">▲ best</span></td><td class="num">87.8</td><td class="num">81.9</td><td class="num">0.83</td></tr>
+
+            <tr class="grp pt"><td colspan="4">iSLEEPS — patient cohort (new)</td></tr>
+            <tr class="row"><td>ResNet</td><td class="num">61.6</td><td class="num">54.4</td><td class="num">0.48</td></tr>
+            <tr class="row"><td>SEResnet-Transformer</td><td class="num">67.4</td><td class="num">59.3</td><td class="num">0.54</td></tr>
+            <tr class="ours"><td>Ours<span class="win">▲ best</span></td><td class="num">74.7</td><td class="num">67.7</td><td class="num">0.64</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tbl-cap">Table 1 — Trained and tested within each dataset. ACC = accuracy, MF1 = macro-F1, κ = Cohen's kappa. Our model leads on every cohort, yet even the best patient-cohort result (74.7%) sits far below the healthy numbers.</p>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="heat reveal">
+      <div class="chart-title" style="margin-bottom:6px">Per-stage F1 — where staging is hard</div>
+      <div class="chart-sub">N1 is the perennial weak spot; on iSLEEPS <em>every</em> stage degrades, and N1 nearly collapses (32.9).</div>
+      <div class="heat-wrap">
+        <div class="heat-grid">
+          <div class="hh"></div>
+          <div class="hh">Wake</div><div class="hh">N1</div><div class="hh">N2</div><div class="hh">N3</div><div class="hh">REM</div>
+
+          <div class="rh">SleepEDF-20 <span class="rt">Healthy</span></div>
+          <div class="cell" data-v="92.0">92.0</div><div class="cell" data-v="56.9">56.9</div><div class="cell" data-v="89.9">89.9</div><div class="cell" data-v="87.9">87.9</div><div class="cell" data-v="85.9">85.9</div>
+
+          <div class="rh">SleepEDF-78 <span class="rt">Healthy</span></div>
+          <div class="cell" data-v="92.1">92.1</div><div class="cell" data-v="50.1">50.1</div><div class="cell" data-v="85.2">85.2</div><div class="cell" data-v="82.1">82.1</div><div class="cell" data-v="82.1">82.1</div>
+
+          <div class="rh">SHHS <span class="rt">Healthy</span></div>
+          <div class="cell" data-v="89.1">89.1</div><div class="cell" data-v="54.4">54.4</div><div class="cell" data-v="89.2">89.2</div><div class="cell" data-v="87.9">87.9</div><div class="cell" data-v="88.9">88.9</div>
+
+          <div class="rh">iSLEEPS <span class="rt">Patient</span></div>
+          <div class="cell" data-v="79.9">79.9</div><div class="cell" data-v="32.9">32.9</div><div class="cell" data-v="80.9">80.9</div><div class="cell" data-v="74.2">74.2</div><div class="cell" data-v="70.6">70.6</div>
+        </div>
+      </div>
+      <div class="heat-legend"><span>F1</span><span>low</span><div class="grad"></div><span>high</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXPLAINABILITY ============ -->
+<section class="sec" id="xai">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Explainability</span>
+      <h2>Right score, wrong reasons.</h2>
+      <p>On the 100 iSLEEPS patients, the SHHS-trained model scored just 55.1% accuracy (51.9% MF1). To understand <em>why</em>, clinicians reviewed Grad-CAM heatmaps for every epoch of four randomly selected patients.</p>
+    </div>
+
+    <div class="reveal">
+      <p class="body">Despite training on healthy data, the model repeatedly attended to <b>physiologically irrelevant</b> regions — diffuse slowing, intermittent delta bursts, and movement or electrode artifacts — rather than the markers that define sleep stages: spindles, K-complexes, and alpha attenuation. The mismatch was sharpest during <b>N1–N2 transitions and REM</b>, where attention drifted to ischemia-related slowing and hemispheric asymmetry over lesioned areas. A model trained <em>on</em> iSLEEPS, by contrast, locked onto clinically meaningful features.</p>
+    </div>
+
+    <!-- schematic contrast -->
+    <div class="gradcam reveal">
+      <div class="gc bad">
+        <div class="gct">Healthy-trained on patient · misdirected</div>
+        <div class="gcs">Correct prediction, but attention lands on an artifact — not a physiological marker.</div>
+        <svg viewBox="0 0 320 78" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="150" y="8" width="70" height="62" rx="3" fill="rgba(185,114,10,.12)" stroke="#B9720A" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <path d="M6 40 Q20 40 26 30 T46 40 T66 44 T86 38 T104 40 L120 40 158 12 168 66 176 20 186 60 196 40 214 40 236 40 Q250 40 258 34 T280 42 T300 38 L314 40"
+                fill="none" stroke="#4a5568" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+          <text x="185" y="76" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7" fill="#B9720A">movement artifact</text>
+        </svg>
+      </div>
+      <div class="gc good">
+        <div class="gct">Trained on patient · aligned</div>
+        <div class="gcs">Attention concentrates on a K-complex and spindle — the features a clinician would use.</div>
+        <svg viewBox="0 0 320 78" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="120" y="8" width="86" height="62" rx="3" fill="rgba(14,155,142,.12)" stroke="#0E9B8E" stroke-width="1.5"/>
+          <path d="M6 40 Q22 40 30 38 T60 40 T90 40 L120 40 132 24 140 58 150 40 Q160 40 164 34 168 46 172 34 176 46 180 34 184 46 188 40 206 40 Q222 40 232 40 T262 40 T292 40 L314 40"
+                fill="none" stroke="#4a5568" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+          <text x="163" y="76" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7" fill="#0E9B8E">K-complex + spindle</text>
+        </svg>
+      </div>
+    </div>
+    <p class="note" style="margin-top:16px">Schematic illustration of the reported Grad-CAM behaviour. See Figures 2–3 in the paper for the annotated EEG epochs.</p>
+  </div>
+</section>
+
+<!-- ============ SLEEP ARCHITECTURE ============ -->
+<section class="sec alt" id="architecture">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Sleep architecture</span>
+      <h2>The two populations are <span class="accent">provably</span> different.</h2>
+      <p>On a balanced set — 49% SleepEDF-78, 51% iSLEEPS — significance testing confirms the sleep architectures diverge in both stage frequency and stage order. This analysis was run with our clinician co-author.</p>
+    </div>
+
+    <div class="stat-strip reveal">
+      <div class="stat"><div class="sv">≈0.17</div><div class="sk">Mean KL divergence<br>between transition maps</div></div>
+      <div class="stat"><div class="sv">1831.5</div><div class="sk">χ² statistic<br>(19 degrees of freedom)</div></div>
+      <div class="stat"><div class="sv amber">13 / 20</div><div class="sk">Transitions differing<br>significantly</div></div>
+      <div class="stat"><div class="sv amber">100%</div><div class="sk">Classifier accuracy<br>separating the cohorts</div></div>
+    </div>
+
+    <div class="lenses">
+      <div class="lens reveal">
+        <span class="ltag">The statistical lens</span>
+        <h3>Unstable, fragmented sleep</h3>
+        <p>Stroke patients are far more likely to <b>wake from light non-REM sleep</b> than to descend into deep restorative sleep — a signature of frequent arousal and reduced sleep efficiency, consistent with post-stroke disruption of thalamocortical and brainstem arousal systems.</p>
+        <div class="trans">
+          <div class="trans-title">P(N2 → Wake) — waking out of light sleep</div>
+          <div class="pair">
+            <div class="prow"><span class="pl">Healthy</span><div class="ptrack"><div class="pfill teal" data-w="41.2">0.164</div></div></div>
+            <div class="prow"><span class="pl">Patient</span><div class="ptrack"><div class="pfill amber" data-w="88.9">0.354</div></div></div>
+          </div>
+          <div class="trans-key">
+            <span><span class="sw teal"></span>SleepEDF-78</span>
+            <span><span class="sw amber"></span>iSLEEPS</span>
+          </div>
+        </div>
+        <p style="margin-top:16px">Patients also show <b>slower N2 → N3</b> transitions — sleep that struggles to deepen — while healthy sleepers consolidate cleanly.</p>
+      </div>
+
+      <div class="lens reveal">
+        <span class="ltag">The computational lens</span>
+        <h3>Perfectly separable by structure alone</h3>
+        <p>Given the divergence, we trained binary classifiers — <b>Random Forest, Logistic Regression, Decision Tree, SVM</b> — to tell whether an unepoched recording came from a patient or a healthy subject, using 27 engineered structural and sequential features.</p>
+        <p><b>Average Run Length</b> — the mean length of an uninterrupted stretch in one stage — separates the cohorts <b>perfectly</b>. Combinations of stage bigrams, the Shannon entropy of the stage sequence, and maximum run length also hit <b>100% accuracy with zero AUC-ROC variance</b> across five folds.</p>
+        <p class="note">Patient nights sprawl across a wide range of run lengths; healthy nights stay tightly constrained (Fig. 5).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CITE ============ -->
+<section class="sec" id="cite">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Cite this work</span>
+      <h2>BibTeX</h2>
+    </div>
+    <div class="cite-card reveal">
+      <div class="cite-bar">
+        <span class="cl">bose2026isleeps.bib</span>
+        <button class="copy-btn" id="copyBib">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+<pre class="bib" id="bibText"><span class="k">@inproceedings</span>{<span class="f">bose2026isleeps</span>,
+  <span class="f">title</span>     = <span class="s">{AI Generalisation Gap in Comorbid Sleep Disorder Staging}</span>,
+  <span class="f">author</span>    = <span class="s">{Bose, Saswata and Maiti, Suvadeep and Sharma, Shivam Kumar and
+               Mythirayee, S. and Chakraborti, Tapabrata and Rajendran, Srijitesh
+               and Bapi, Raju S.}</span>,
+  <span class="f">booktitle</span> = <span class="s">{2026 IEEE International Symposium on Biomedical Imaging (ISBI)}</span>,
+  <span class="f">year</span>      = <span class="s">{2026}</span>,
+  <span class="f">publisher</span> = <span class="s">{IEEE}</span>,
+  <span class="f">note</span>      = <span class="s">{Oral presentation}</span>,
+  <span class="f">url</span>       = <span class="s">{https://arxiv.org/abs/2603.23582}</span>
+}</pre>
+    </div>
+    <p class="note" style="margin-top:14px">arXiv: 2603.23582 · IEEE Xplore: 11515484 — add exact pages / DOI from Xplore once indexed.</p>
+  </div>
+</section>
+
+<!-- ============ ETHICS / ACK ============ -->
+<section class="sec alt" id="ethics">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Ethics &amp; acknowledgements</span></div>
+    <div class="two-col reveal">
+      <div class="blockcard">
+        <h3>Ethical compliance</h3>
+        <p>The study was carried out at NIMHANS, Bengaluru, India. Approval was obtained from the NIMHANS Institutional Ethics Committee <span class="id">No. NIMHANS/34th IEC (BS&amp;NS DIV.)/2022 dated 05.02.2022</span>. Ethical considerations were strictly followed throughout. The authors declare no competing interests.</p>
+      </div>
+      <div class="blockcard amber">
+        <h3>Acknowledgements</h3>
+        <p>We acknowledge IHub-Data, IIIT Hyderabad (H1-002), for financial assistance. Tapabrata Chakraborti is supported by the Turing-Roche Strategic Partnership and the UCL NIHR Biomedical Research Centre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fbrand">Toward medical-grade, explainable, unbiased sleep staging for the patients monitoring is meant to help.</div>
+      <div class="flinks">
+        <a href="https://arxiv.org/abs/2603.23582" target="_blank" rel="noopener">arXiv</a>
+        <a href="https://ieeexplore.ieee.org/abstract/document/11515484" target="_blank" rel="noopener">IEEE Xplore</a>
+        <a href="https://github.com/HimalayanSaswataBose/iSLEEPS_GeneralisationGapAndExplainability" target="_blank" rel="noopener">Code</a>
+        <a href="https://tinyurl.com/iSLEEPSv1" target="_blank" rel="noopener">iSLEEPS dataset</a>
+      </div>
+    </div>
+    <div class="fbottom">
+      <span>© 2026 · IEEE ISBI 2026 (oral). For inquiries, contact the authors through their institutions.</span>
+      <span>Charts reconstructed from the published results.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- live EEG signature ---------- */
+  (function eeg(){
+    var canvas = document.getElementById('eeg');
+    if(!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var W=0,H=0,DPR=1;
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio||1, 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+    resize();
+    var rt;
+    window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(resize,120); });
+
+    function rnd(x){ var v = Math.sin(x*12.9898)*43758.5453; return v - Math.floor(v); }
+
+    function sample(x, t){
+      var mid = H*0.5;
+      var k = Math.min(1, Math.max(0, (x-0.08)/0.82));   // irregularity ramp L->R
+      var amp = H*0.17;
+      var y = Math.sin(x*18 + t*2.0)*0.6 + Math.sin(x*7 + t*1.3)*0.3;   // healthy rhythm
+      y += Math.sin(x*58 + t*3.0)*0.12*(1-k);                          // spindle-ish, healthy side
+      var n = rnd(x*97 + Math.floor(t*3));
+      y += (n-0.5)*2.6*k;                                              // random offset, patient
+      y += Math.sin(x*128 + t*6.0)*0.5*k;                              // fast jitter
+      var burst = Math.max(0, Math.sin(x*40 - t*1.5));
+      y += Math.pow(burst,8)*1.7*k;                                    // sharp delta bursts
+      return mid - y*amp;
+    }
+
+    function grid(){
+      ctx.clearRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,255,0.035)'; ctx.lineWidth=1;
+      var s=34,x,y;
+      for(x=0;x<=W;x+=s){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(y=0;y<=H;y+=s){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    }
+
+    function frame(ms){
+      var t = reduce ? 3.0 : ms*0.001;
+      grid();
+      var g = ctx.createLinearGradient(0,0,W,0);
+      g.addColorStop(0.0,'rgb(63,224,206)');
+      g.addColorStop(0.48,'rgb(96,214,192)');
+      g.addColorStop(0.62,'rgb(206,190,120)');
+      g.addColorStop(1.0,'rgb(251,183,74)');
+      ctx.strokeStyle=g; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.lineCap='round';
+      ctx.shadowColor='rgba(63,224,206,0.30)'; ctx.shadowBlur=7;
+      ctx.beginPath();
+      var N=Math.max(180, Math.floor(W/2.5)), i, xf, px, py;
+      for(i=0;i<=N;i++){
+        xf=i/N; px=xf*W; py=sample(xf,t);
+        if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.shadowBlur=0;
+      if(!reduce) requestAnimationFrame(frame);
+    }
+    if(reduce) frame(0); else requestAnimationFrame(frame);
+  })();
+
+  /* ---------- reveal on scroll ---------- */
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  function fillBars(el){
+    // gap chart
+    if(el.id==='gapChart' || el.querySelector){
+      var fills = el.querySelectorAll('.bar-fill');
+      for(var i=0;i<fills.length;i++){ fills[i].style.height = fills[i].getAttribute('data-h')+'%'; }
+      var pf = el.querySelectorAll('.pfill');
+      for(var j=0;j<pf.length;j++){ pf[j].style.width = pf[j].getAttribute('data-w')+'%'; }
+    }
+  }
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); fillBars(e.target); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add('in'); fillBars(el); });
+  }
+
+  /* ---------- heatmap cell colouring ---------- */
+  (function heat(){
+    var cells = document.querySelectorAll('.cell[data-v]');
+    var lo=[234,240,240], hi=[14,155,142];
+    for(var i=0;i<cells.length;i++){
+      var v=parseFloat(cells[i].getAttribute('data-v'));
+      var tt=Math.max(0, Math.min(1, (v-30)/62));
+      var col='rgb('+Math.round(lo[0]+(hi[0]-lo[0])*tt)+','+Math.round(lo[1]+(hi[1]-lo[1])*tt)+','+Math.round(lo[2]+(hi[2]-lo[2])*tt)+')';
+      cells[i].style.background=col;
+      cells[i].style.color = tt>0.55 ? '#ffffff' : '#0b2b28';
+    }
+  })();
+
+  /* ---------- sticky nav active state ---------- */
+  (function navspy(){
+    var links = [].slice.call(document.querySelectorAll('.nav-inner a'));
+    var map = {};
+    links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+    var ids = Object.keys(map);
+    if(!('IntersectionObserver' in window)) return;
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          var cur = map[e.target.id];
+          if(cur) cur.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
+    ids.forEach(function(id){ var s=document.getElementById(id); if(s) spy.observe(s); });
+  })();
+
+  /* ---------- copy BibTeX ---------- */
+  (function copyBib(){
+    var btn = document.getElementById('copyBib');
+    var pre = document.getElementById('bibText');
+    if(!btn || !pre) return;
+    btn.addEventListener('click', function(){
+      var text = pre.innerText;
+      var done = function(){
+        var orig = btn.innerHTML;
+        btn.classList.add('done');
+        btn.textContent = 'Copied ✓';
+        setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML = orig; }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+    function fallback(text){
+      var ta=document.createElement('textarea'); ta.value=text;
+      ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+      ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta);
+    }
+  })();
+})();
+</script>
 </body>
-
 </html>
-
